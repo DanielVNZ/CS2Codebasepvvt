@@ -1,0 +1,28 @@
+using Colossal.Serialization.Entities;
+using Unity.Entities;
+
+namespace Game.Prefabs;
+
+public struct TaxiwayData : IComponentData, IQueryTypeParameter, ISerializable
+{
+	public float m_SpeedLimit;
+
+	public TaxiwayFlags m_Flags;
+
+	public void Serialize<TWriter>(TWriter writer) where TWriter : IWriter
+	{
+		float speedLimit = m_SpeedLimit;
+		((IWriter)writer/*cast due to .constrained prefix*/).Write(speedLimit);
+		TaxiwayFlags flags = m_Flags;
+		((IWriter)writer/*cast due to .constrained prefix*/).Write((uint)flags);
+	}
+
+	public void Deserialize<TReader>(TReader reader) where TReader : IReader
+	{
+		ref float speedLimit = ref m_SpeedLimit;
+		((IReader)reader/*cast due to .constrained prefix*/).Read(ref speedLimit);
+		uint flags = default(uint);
+		((IReader)reader/*cast due to .constrained prefix*/).Read(ref flags);
+		m_Flags = (TaxiwayFlags)flags;
+	}
+}
